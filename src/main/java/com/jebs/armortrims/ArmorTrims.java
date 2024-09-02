@@ -2,6 +2,8 @@ package com.jebs.armortrims;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,6 +20,8 @@ import java.util.Objects;
 
 public final class ArmorTrims extends JavaPlugin implements Listener {
     private static final ArrayList<PlayerObject> playerObjects = new ArrayList<>();
+    private static final ArrayList<Entity> summonedEntities = new ArrayList<>();
+    private static final ArrayList<Player> entitySummoners = new ArrayList<>();
 
     public static PluginLogger logger;
 
@@ -143,7 +147,10 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
 
                 if (!object.equals(player) && object.getPlayer().getLocation().distance(player.getPlayer().getLocation()) < 20.0D) {
                     object.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, duration, 2));
-                    object.getPlayer().sendTitle("English... or Spanish?", ChatColor.RED + "Whoever moves first is gay");
+                    object.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, duration, 255));
+                    object.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, 255));
+
+                    object.getPlayer().sendTitle("English... or Spanish?", "Whoever moves first is gay");
 
                     while (object.getPlayer().hasPotionEffect(PotionEffectType.DARKNESS)) {
                         object.getPlayer().teleport(prevLoc);
@@ -152,9 +159,46 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
             }
 
             player.getPlayer().sendMessage(ChatColor.GREEN + "Successfully used Silence Ability");
+            logger.info(player.getPlayer().getName() + " used silence trim ability");
         } else {
             long timeLeft = player.getCoolDown() + 60000 - System.currentTimeMillis();
             player.getPlayer().sendMessage(ChatColor.RED + "You must wait " + timeLeft / 1000L + " seconds before using your trim ability again.");
+        }
+    }
+
+    private static void vex(PlayerObject player) {
+        if (player.getCoolDown() >= System.currentTimeMillis() - 80000L) {
+            long timeLeft = player.getCoolDown() + 80000L - System.currentTimeMillis();
+            player.getPlayer().sendMessage(ChatColor.RED + "You must wait " + timeLeft / 1000L + " seconds before using your trim ability again.");
+        } else {
+            player.setCoolDown(System.currentTimeMillis());
+            Iterator summonedEntitiesIterator = summonedEntities.iterator();
+
+            while (summonedEntitiesIterator.hasNext()) {
+                Entity entity = (Entity) summonedEntitiesIterator.next();
+
+                if (entity.getType().equals(EntityType.VEX) && (Objects.requireNonNull(entity.getCustomName())).contains(player.getPlayer().getName())) {
+                    entity.remove();
+                }
+            }
+
+            double level = getTrimLevel(player.getPlayer()) * 4.0D;
+            int vexes = (int) level;
+
+            for (int i = 0; i < vexes; ++i) {
+                Entity entity = player.getPlayer().getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.VEX);
+
+                entity.setCustomName(player.getPlayer().getName() + "'s Vex");
+                entity.setCustomNameVisible(true);
+
+                summonedEntities.add(entity);
+            }
+
+            if (!entitySummoners.contains(player.getPlayer())) {
+                entitySummoners.add(player.getPlayer());
+            }
+
+            player.getPlayer().sendMessage(ChatColor.GREEN + "Successfully used Vex Ability");
         }
     }
 
@@ -172,7 +216,7 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
             if (trim.equalsIgnoreCase("silence")) {
                 silence(playerObject);
             } else if (trim.equalsIgnoreCase("vex")) {
-
+                vex(playerObject);
             } else if (trim.equalsIgnoreCase("sentry")) {
 
             } else if (trim.equalsIgnoreCase("wild")) {
