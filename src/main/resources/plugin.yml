@@ -1,0 +1,4 @@
+name: Armor Trim Powers
+version: '1.0.0'
+main: com.jebs.armortrims.ArmorTrims
+api-version: '1.21'
