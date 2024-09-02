@@ -97,13 +97,32 @@
   },
   "minecraft:adventure/trim_with_all_exclusive_armor_patterns": {
     "criteria": {
-      "armor_trimmed_minecraft:silence_armor_trim_smithing_template_smithing_trim": "2024-09-02 18:51:22 +0800"
+      "armor_trimmed_minecraft:silence_armor_trim_smithing_template_smithing_trim": "2024-09-02 18:51:22 +0800",
+      "armor_trimmed_minecraft:vex_armor_trim_smithing_template_smithing_trim": "2024-09-02 20:37:25 +0800"
     },
     "done": false
   },
   "minecraft:adventure/trim_with_any_armor_pattern": {
     "criteria": {
       "armor_trimmed_minecraft:silence_armor_trim_smithing_template_smithing_trim": "2024-09-02 18:51:22 +0800"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/vex_armor_trim_smithing_template_smithing_trim": {
+    "criteria": {
+      "has_smithing_trim_template": "2024-09-02 20:37:09 +0800"
+    },
+    "done": true
+  },
+  "minecraft:recipes/decorations/chest": {
+    "criteria": {
+      "has_lots_of_items": "2024-09-02 20:37:05 +0800"
+    },
+    "done": true
+  },
+  "minecraft:recipes/misc/vex_armor_trim_smithing_template": {
+    "criteria": {
+      "has_vex_armor_trim_smithing_template": "2024-09-02 20:37:09 +0800"
     },
     "done": true
   },
