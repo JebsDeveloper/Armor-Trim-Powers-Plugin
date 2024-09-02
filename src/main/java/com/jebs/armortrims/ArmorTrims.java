@@ -149,13 +149,15 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
 
                 if (!object.equals(player) && object.getPlayer().getLocation().distance(player.getPlayer().getLocation()) < 20.0D) {
                     object.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.DARKNESS, duration, 2));
-                    object.getPlayer().sendTitle(ChatColor.RED + "English... or Spanish?", ChatColor.RED + "Whoever moves first is gay");
+                    object.getPlayer().sendTitle("English... or Spanish?", ChatColor.RED + "Whoever moves first is gay");
 
                     while (object.getPlayer().hasPotionEffect(PotionEffectType.DARKNESS)) {
                         object.getPlayer().teleport(prevLoc);
                     }
                 }
             }
+
+            player.getPlayer().sendMessage(ChatColor.GREEN + "Successfully used Silence Ability");
         } else {
             long timeLeft = player.getCoolDown() + 60000 - System.currentTimeMillis();
             player.getPlayer().sendMessage(ChatColor.RED + "You must wait " + timeLeft / 1000L + " seconds before using your trim ability again.");
