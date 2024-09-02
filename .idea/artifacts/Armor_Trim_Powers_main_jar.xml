@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Armor_Trim_Powers.main:jar">
+    <output-path>$PROJECT_DIR$/Test Server/plugins</output-path>
+    <root id="archive" name="Armor_Trim_Powers.main.jar">
+      <element id="module-output" name="Armor_Trim_Powers.main" />
+    </root>
+  </artifact>
+</component>
