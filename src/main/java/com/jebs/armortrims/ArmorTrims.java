@@ -129,7 +129,7 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
             }
         }
 
-        return total / 4;
+        return total;
     }
 
     private static void silence(PlayerObject player) {
