@@ -96,7 +96,7 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
         double total = 0.0D;
         Iterator metaIterator = metas.iterator();
 
-        while(metaIterator.hasNext()) {
+        while (metaIterator.hasNext()) {
             ArmorMeta meta = (ArmorMeta) metaIterator.next();
 
             if (meta != null && meta.hasTrim()) {
@@ -104,32 +104,40 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
 
                 byte level = -1;
 
-                switch(trimMaterial) {
+                switch (trimMaterial) {
                     case "copper": level = 1;
-                    case "amethyst": level = 1;
 
-                    case "gold": level = 2;
-                    case "emerald": level = 2;
+                    case "iron": level = 2;
+                    case "quartz": level = 2;
 
-                    case "diamond": level = 3;
+                    case "gold": level = 3;
+                    case "emerald": level = 3;
 
-                    case "netherite": level = 4;
+                    case "redstone": level = 4;
+                    case "lapis": level = 4;
+
+                    case "amethyst": level = 5;
+                    case "diamond": level = 5;
+
+                    case "netherite": level = 6;
 
                     default: level = 1;
                 }
 
                 switch(level) {
-                    case 1: total = 1.0D; break;
+                    case 1: total += 1.0D; break;
                     case 2: total += 2.0D; break;
                     case 3: total += 3.0D; break;
                     case 4: total += 4.0D; break;
+                    case 5: total += 5.0D; break;
+                    case 6: total += 6.0D; break;
 
                     default: ++total;
                 }
             }
         }
 
-        return total;
+        return total / 4;
     }
 
     private static void silence(PlayerObject player) {
