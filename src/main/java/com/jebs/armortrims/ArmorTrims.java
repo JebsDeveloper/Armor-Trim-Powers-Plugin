@@ -28,10 +28,6 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
 
     public static PluginLogger logger;
 
-    public static ArrayList<PlayerObject> getPlayerObjects() {
-        return playerObjects;
-    }
-
     @Override
     public void onEnable() {
         getLogger().info("Initializing Armor Trim Powers Plugin");
@@ -41,8 +37,9 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
         EndCooldownCommand ec = new EndCooldownCommand();
 
         getServer().getPluginManager().registerEvents(this, this);
-        getCommand("ec").setExecutor(ec);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
+
+        getCommand("ec").setExecutor(ec);
 
         Iterator playersIterator = getServer().getOnlinePlayers().iterator();
 
@@ -154,9 +151,9 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
         if (player.getCoolDown() < System.currentTimeMillis() - 60000L) {
             player.setCoolDown(System.currentTimeMillis());
 
-            double level = ArmorTrims.getTrimLevel(player.getPlayer());
-            int duration = (int) ((level - 1.0D) * 100.0D);
-            Iterator playerObjectsIterator = ArmorTrims.playerObjects.iterator();
+            double level = getTrimLevel(player.getPlayer());
+            int duration = (int) (level + 3);
+            Iterator playerObjectsIterator = playerObjects.iterator();
 
             while (playerObjectsIterator.hasNext()) {
                 PlayerObject object = (PlayerObject) playerObjectsIterator.next();
@@ -191,29 +188,26 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
             player.getPlayer().sendMessage(ChatColor.RED + "You must wait " + timeLeft / 1000L + " seconds before using your trim ability again.");
         } else {
             player.setCoolDown(System.currentTimeMillis());
-
-            double level = ArmorTrims.getTrimLevel(player.getPlayer());
-            int vexes = (int) level - 4;
-
             Iterator summonedEntitiesIterator = summonedEntities.iterator();
 
-            if (vexes >= 1) {
-                while (summonedEntitiesIterator.hasNext()) {
-                    Entity entity = (Entity) summonedEntitiesIterator.next();
+            while (summonedEntitiesIterator.hasNext()) {
+                Entity entity = (Entity) summonedEntitiesIterator.next();
 
-                    if (entity.getType().equals(EntityType.VEX) && (Objects.requireNonNull(entity.getCustomName())).contains(player.getPlayer().getName())) {
-                        entity.remove();
-                    }
+                if (entity.getType().equals(EntityType.VEX) && (Objects.requireNonNull(entity.getCustomName())).contains(player.getPlayer().getName())) {
+                    entity.remove();
                 }
+            }
 
-                for (int i = 0; i < vexes; ++i) {
-                    Entity vex = player.getPlayer().getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.VEX);
+            double level = getTrimLevel(player.getPlayer());
+            int vexes = (int) level;
 
-                    vex.setCustomName(player.getPlayer().getName() + "'s Vex");
-                    vex.setCustomNameVisible(true);
+            for (int i = 0; i < vexes; ++i) {
+                Entity entity = player.getPlayer().getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.VEX);
 
-                    summonedEntities.add(vex);
-                }
+                entity.setCustomName(player.getPlayer().getName() + "'s Vex");
+                entity.setCustomNameVisible(true);
+
+                summonedEntities.add(entity);
             }
 
             if (!entitySummoners.contains(player.getPlayer())) {
@@ -221,6 +215,7 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
             }
 
             player.getPlayer().sendMessage(ChatColor.GREEN + "Successfully used Vex Ability");
+            logger.info(player.getPlayer().getName() + " used vex trim ability");
         }
     }
 
