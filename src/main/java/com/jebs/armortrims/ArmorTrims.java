@@ -4,12 +4,14 @@ import com.jebs.armortrims.util.Listeners;
 import com.jebs.armortrims.util.PlayerObject;
 import com.jebs.armortrims.util.commands.EndCooldownCommand;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.meta.ArmorMeta;
 import org.bukkit.plugin.PluginLogger;
@@ -147,6 +149,29 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
         return total;
     }
 
+    private static Player getClosestPlayer(Entity entity, String exclude) {
+        Player closestPlayer = null;
+
+        double closestDistance = Double.MAX_VALUE;
+
+        Iterator playerObjectIterator = playerObjects.iterator();
+
+        while (playerObjectIterator.hasNext()) {
+            PlayerObject playerObject = (PlayerObject) playerObjectIterator.next();
+
+            if (!exclude.contains(playerObject.getPlayer().getName()) && !playerObject.getPlayer().isDead() && playerObject.getPlayer().getGameMode().equals(GameMode.SURVIVAL) && playerObject.getPlayer().getLocation().distance(entity.getLocation()) < closestDistance) {
+                closestPlayer = playerObject.getPlayer();
+                closestDistance = playerObject.getPlayer().getLocation().distance(entity.getLocation());
+            }
+        }
+
+        if (closestDistance > 30.0D) {
+            return null;
+        } else {
+            return closestPlayer;
+        }
+    }
+
     private static void silence(PlayerObject player) {
         if (player.getCoolDown() < System.currentTimeMillis() - 60000L) {
             player.setCoolDown(System.currentTimeMillis());
@@ -219,6 +244,45 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
         }
     }
 
+    private static void sentry(PlayerObject player) {
+        if (player.getCoolDown() >= System.currentTimeMillis() - 120000L) {
+            long timeLeft = player.getCoolDown() - 120000L + System.currentTimeMillis();
+            player.getPlayer().sendMessage(ChatColor.RED + "You must wait " + timeLeft + " seconds before using your trim ability again.");
+        } else {
+            player.setCoolDown(System.currentTimeMillis());
+            Iterator summonedEntitiesIterator = summonedEntities.iterator();
+
+            while(summonedEntitiesIterator.hasNext()) {
+                Entity entity = (Entity) summonedEntitiesIterator.next();
+
+                if (entity.getType().equals(EntityType.IRON_GOLEM) && (Objects.requireNonNull(entity.getCustomName())).contains(player.getPlayer().getName())) {
+                    entity.remove();
+                    summonedEntities.remove(entity);
+                }
+            }
+
+            double level = getTrimLevel(player.getPlayer());
+            int sentries = (int) level;
+
+            for (int i = 0; i < sentries; ++i) {
+                Entity entity = player.getPlayer().getWorld().spawnEntity(player.getPlayer().getLocation(), EntityType.IRON_GOLEM);
+
+                entity.setCustomName(player.getPlayer().getName() + "'s Sentry");
+                entity.setCustomNameVisible(true);
+
+                summonedEntities.add(entity);
+
+                new EntityTargetEvent(entity, getClosestPlayer(entity, player.getPlayer().getName()), EntityTargetEvent.TargetReason.CUSTOM);
+            }
+
+            if (!entitySummoners.contains(player.getPlayer())) {
+                entitySummoners.add(player.getPlayer());
+            }
+
+            player.getPlayer().sendMessage(ChatColor.GREEN + "Sentries Summoned");
+        }
+    }
+
     public static void activateAbility(Player player) {
         if (hasConsistentTrims(player)) {
             ArmorMeta meta = (ArmorMeta) (Objects.requireNonNull(player.getInventory().getHelmet())).getItemMeta();
@@ -235,7 +299,7 @@ public final class ArmorTrims extends JavaPlugin implements Listener {
             } else if (trim.equalsIgnoreCase("vex")) {
                 vex(playerObject);
             } else if (trim.equalsIgnoreCase("sentry")) {
-
+                sentry(playerObject);
             } else if (trim.equalsIgnoreCase("wild")) {
 
             } else if (trim.equalsIgnoreCase("coast")) {
